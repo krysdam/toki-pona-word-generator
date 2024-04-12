@@ -66,20 +66,21 @@ class Vocabulary:
             For each word, if it starts with a vowel,
             0.5 is added to the cost.
             (In other words, initial glottal stop is 0.5 of a consonant.)
-        Words that are prefixes of other words are very bad.
-            For each pair of words, if one is a prefix of the other,
-            4x the length of the prefix is added to the cost.
 
         Similar words are bad. This is counted in a few ways.
+        Prefixes:
+            If one word is a prefix of another, that's very bad.
+            For each pair of words, if one is a prefix of the other,
+            2 + length of the prefix is added to the cost.
         Edit distance:
-            For each pair of words, if their dissimilarity < 1.00,
-            (1/dissimilarity) - 1 is added to the cost.
+            For each pair of words, if their dissimilarity < 0.5,
+            (1/dissimilarity) is added to the cost.
         Word shape:
             For each pair of words, if their shape is the same,
-            0.05 is added to the cost.
+            0.1 is added to the cost.
         First sound:
             For each pair of words, if their first sound is the same,
-            0.05 is added to the cost.
+            0.1 is added to the cost.
         """
         length_cost = 0
         vowel_cost = 0
@@ -97,19 +98,19 @@ class Vocabulary:
         # for each unique pair of words...
         for w1, w2 in combinations(self.words, 2):
             s1, s2 = str(w1), str(w2)
-            # if one is a prefix, add 4x the length of the prefix
+            # if one is a prefix, add 2 + length of the prefix
             if s1.startswith(s2) or s2.startswith(s1):
-                prefix_cost += 4 * min(len(s1), len(s2))
+                prefix_cost += 2 + min(len(s1), len(s2))
             # if the words are similar, add 1/dissimilarity
             dissimilarity = string_dissimilarity(s1, s2)
             if dissimilarity < 0.5:
                 similarity_cost += 1 / (dissimilarity)
-            # if the shapes are the same, add 0.05
+            # if the shapes are the same, add 0.1
             if w1.shape() == w2.shape():
-                shape_cost += 0.05
-            # if the first sound is the same, add 0.05
+                shape_cost += 0.1
+            # if the first sound is the same, add 0.1
             if w1.first_sound() == w2.first_sound():
-                first_sound_cost += 0.05
+                first_sound_cost += 0.1
 
         costs = (length_cost, vowel_cost, prefix_cost,
                  similarity_cost, shape_cost, first_sound_cost)
