@@ -134,11 +134,7 @@ class Vocabulary:
         print()
     
     def alter_if_better(self):
-        """Randomly alter this Vocabulary, if it reduces the cost().
-        
-        Also accept 1/1000 of changes that increase the cost,
-        to allow more exploration of the cost space.
-        """
+        """Randomly alter this Vocabulary, if it reduces the cost()."""
         old_cost = self.cost()
         # choose one word, and change it randomly in place
         word_index = random.randrange(0, len(self.words))
@@ -147,12 +143,11 @@ class Vocabulary:
         # if the new word matches an existing word, don't accept the change
         if new_word in self.words:
             return
+        # make the change.
+        # if the cost gets worse (higher), revert the change.
         self.words[word_index] = new_word
         new_cost = self.cost()
-        # if the cost is worse, revert the change with probability 0.999
-        # (we want to keep some bad changes, as an annealing thing)
         if new_cost > old_cost:
-            #if random.random() < 0.999:
             self.words[word_index] = word
 
     def bar_graph(self, function, categories):
