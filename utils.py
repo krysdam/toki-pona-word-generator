@@ -21,8 +21,8 @@ def edit_distance(s1, s2):
     return dp[m][n]
 
 @lru_cache(maxsize=None)
-def string_dissimilarity(s1, s2):
-    """The dissimilarity of two strings. Edit distance over average length.
+def edit_distance_adjusted(s1, s2):
+    """The 'dissimilarity' of two strings. Edit distance over average length.
     
     Examples:
     anpa nanpa = 1/4.5 = 0.22

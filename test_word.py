@@ -246,6 +246,39 @@ class TestWord(unittest.TestCase):
             v = w.random_variant()
             self.assertTrue(v.is_legal())
 
+    def test_inherent_cost(self):
+        # more cumbersome word-forms should have higher costs.
+        # anything more detailed than that is likely to change.
+        self.assertGreater(Word('len').inherent_cost(),
+                           Word('a').inherent_cost())
+        self.assertGreater(Word('kipisi').inherent_cost(),
+                           Word('len').inherent_cost())
+        self.assertGreater(Word('kijetesantakalu').inherent_cost(),
+                           Word('kipisi').inherent_cost())
+        
+    def test_similarity_cost(self):
+        # more similar words should have higher costs.
+        # anything more detailed than that is likely to change.
+        self.assertGreater(Word('kala').similarity_cost(Word('kalama')),
+                           Word('kule').similarity_cost(Word('kalama')))
+        self.assertGreater(Word('anpa').similarity_cost(Word('nanpa')),
+                           Word('anpa').similarity_cost(Word('monsi')))
+        self.assertGreater(Word('telo').similarity_cost(Word('wawa')),
+                           Word('telo').similarity_cost(Word('wawan')))
+        self.assertGreater(Word('taso').similarity_cost(Word('tu')),
+                           Word('taso').similarity_cost(Word('mu')))
+
+    def test_similarity_cost_symmetric(self):
+        # similarity cost should be symmetric
+        self.assertEqual(Word('kala').similarity_cost(Word('kalama')),
+                         Word('kalama').similarity_cost(Word('kala')))
+        self.assertEqual(Word('anpa').similarity_cost(Word('nanpa')),
+                         Word('nanpa').similarity_cost(Word('anpa')))
+        self.assertEqual(Word('telo').similarity_cost(Word('wawa')),
+                         Word('wawa').similarity_cost(Word('telo')))
+        self.assertEqual(Word('taso').similarity_cost(Word('tu')),
+                         Word('tu').similarity_cost(Word('telo')))
+
     def test_compare(self):
         # are words compared correctly?
         self.assertLess(Word('a'), Word('e'))

@@ -57,82 +57,16 @@ class Vocabulary:
                     syllable_length += 1
                     failed_attempts = 0
 
-    def costs(self):
-        """The 'badness' of this vocabulary, categorized by cost type.
-
-        Longer words are bad.
-            For each word, its length is added to the cost.
-        Starting with a vowel is slightly bad.
-            For each word, if it starts with a vowel,
-            0.5 is added to the cost.
-            (In other words, initial glottal stop is 0.5 of a consonant.)
-
-        Similar words are bad. This is counted in a few ways.
-        Prefixes:
-            If one word is a prefix of another, that's very bad.
-            For each pair of words, if one is a prefix of the other,
-            2 + length of the prefix is added to the cost.
-        Edit distance:
-            For each pair of words, if their dissimilarity < 0.5,
-            (1/dissimilarity) is added to the cost.
-        Word shape:
-            For each pair of words, if their shape is the same,
-            0.1 is added to the cost.
-        First sound:
-            For each pair of words, if their first sound is the same,
-            0.1 is added to the cost.
-        """
-        length_cost = 0
-        vowel_cost = 0
-        prefix_cost = 0
-        similarity_cost = 0
-        shape_cost = 0
-        first_sound_cost = 0
-
-        for w1 in self.words:
-            # add the length of each word
-            length_cost += len(str(w1))
-            # if the word starts with a vowel, add 0.5
-            if w1.syllables[0].onset == '':
-                vowel_cost += 0.5
-        # for each unique pair of words...
-        for w1, w2 in combinations(self.words, 2):
-            s1, s2 = str(w1), str(w2)
-            # if one is a prefix, add 2 + length of the prefix
-            if s1.startswith(s2) or s2.startswith(s1):
-                prefix_cost += 2 + min(len(s1), len(s2))
-            # if the words are similar, add 1/dissimilarity
-            dissimilarity = string_dissimilarity(s1, s2)
-            if dissimilarity < 0.5:
-                similarity_cost += 1 / (dissimilarity)
-            # if the shapes are the same, add 0.1
-            if w1.shape() == w2.shape():
-                shape_cost += 0.1
-            # if the first sound is the same, add 0.1
-            if w1.first_sound() == w2.first_sound():
-                first_sound_cost += 0.1
-
-        costs = (length_cost, vowel_cost, prefix_cost,
-                 similarity_cost, shape_cost, first_sound_cost)
-        return costs
-
     def cost(self):
-        """The total 'badness' of this vocabulary."""
-        cost = sum(self.costs())
+        """The cost ('badness') of this vocabulary."""
+        cost = 0
+        # cost of each word alone
+        for w1 in self.words:
+            cost += w1.inherent_cost()
+        # cost of pairs of words
+        for w1, w2 in combinations(self.words, 2):
+            cost += w1.similarity_cost(w2)
         return cost
-    
-    def print_costs(self):
-        """Print the costs of this vocabulary."""
-        (length_cost, vowel_cost, prefix_cost,
-         similarity_cost, shape_cost, first_sound_cost) = self.costs()
-        print(f'length cost =      {length_cost:8.3f}')
-        print(f'vowel cost =       {vowel_cost:8.3f}')
-        print(f'prefix cost =      {prefix_cost:8.3f}')
-        print(f'similarity cost =  {similarity_cost:8.3f}')
-        print(f'shape cost =       {shape_cost:8.3f}')
-        print(f'first sound cost = {first_sound_cost:8.3f}')
-        print(f'total cost =       {self.cost():8.3f}')
-        print()
     
     def alter_if_better(self):
         """Randomly alter this Vocabulary, if it reduces the cost()."""
@@ -183,6 +117,13 @@ class Vocabulary:
             start_with.sort()
             s += ' '.join(str(w) for w in start_with)
             s += '\n'
+        s += '\n'
+
+         # shapes
+        s += 'FIRST SOUND\n'
+        s += self.bar_graph(lambda w: w.first_sound(),
+                            [start for start in VOWELS + ONSETS
+                             if start != ''])
         s += '\n'
 
         # shapes

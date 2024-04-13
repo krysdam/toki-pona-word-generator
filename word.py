@@ -1,5 +1,7 @@
 import random
 
+from utils import *
+
 from syllable import Syllable
 
 class Word:
@@ -115,6 +117,47 @@ class Word:
         if str(new_word) == str(self):
             return self.random_variant()
         return new_word
+    
+    def inherent_cost(self):
+        """The cost of this word's word-form. Higher is worse.
+        
+        Difficult words are bad. This is counted in two ways.
+        Length: each letter of length of a word counts for 1 cost.
+        Starting with a vowel: starting with a vowel costs 0.5.
+            In other words, an initial glottal stop counts as 0.5 letters.
+        """
+        cost = 0
+        cost += len(str(self))
+        if self.syllables[0].onset == '':
+            cost += 0.5
+        return cost
+    
+    def similarity_cost(self, other):
+        """The similarity of two words, as a number. Higher is more similar.
+
+        Similar words are bad. This is counted in a few ways.
+        Prefixes: If one word is a prefix of another, that's very bad.
+            Add (2 + length of the prefix) to the cost.
+        Edit distance: if adjusted edit distance < 0.5, add 1/that to cost.
+        Word shape: if shape is the same, add 0.1 to cost.
+        First sound: if first sound is the same, add 0.1 to cost.
+        """
+        cost = 0
+        s1, s2 = str(self), str(other)
+        # if one is a prefix, add 2 + length of the prefix
+        if s1.startswith(s2) or s2.startswith(s1):
+            cost += 2 + min(len(s1), len(s2))
+        # if the words are similar, add 1/dissimilarity
+        dissimilarity = edit_distance_adjusted(s1, s2)
+        if dissimilarity < 0.5:
+            cost += 1 / (dissimilarity)
+        # if the shapes are the same, add 0.1
+        if self.shape() == other.shape():
+            cost += 0.1
+        # if the first sound is the same, add 0.1
+        if self.first_sound() == other.first_sound():
+            cost += 0.1
+        return cost
 
     def __gt__(self, other):
         """Compare two words by their string representations."""

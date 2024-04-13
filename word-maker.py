@@ -42,8 +42,7 @@ r = 0
 while True:
     if r % 100 == 0:
         print('\n')
-        print(f'r = {r}')
-        vocab.print_costs()
+        print(f'r = {r}, cost = {vocab.cost():.3f}')
         print(vocab)
     vocab.alter_if_better()
     r += 1

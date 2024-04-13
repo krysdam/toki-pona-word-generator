@@ -40,18 +40,18 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(edit_distance('contemporary', 'contemptible'), 5)
         self.assertEqual(edit_distance('arithmetic', 'arithmetics'), 1)
 
-    def test_string_dissimilarity(self):
-        self.assertAlmostEqual(string_dissimilarity('anpa', 'nanpa'),
+    def test_edit_distance_adjusted(self):
+        self.assertAlmostEqual(edit_distance_adjusted('anpa', 'nanpa'),
                                0.22, places=2)
-        self.assertAlmostEqual(string_dissimilarity('kama', 'kala'),
+        self.assertAlmostEqual(edit_distance_adjusted('kama', 'kala'),
                                0.25, places=2)
-        self.assertAlmostEqual(string_dissimilarity('mama', 'wawa'),
+        self.assertAlmostEqual(edit_distance_adjusted('mama', 'wawa'),
                                0.50, places=2)
-        self.assertAlmostEqual(string_dissimilarity('tawa', 'kasi'),
+        self.assertAlmostEqual(edit_distance_adjusted('tawa', 'kasi'),
                                0.75, places=2)
-        self.assertAlmostEqual(string_dissimilarity('telo', 'musi'),
+        self.assertAlmostEqual(edit_distance_adjusted('telo', 'musi'),
                                1.00, places=2)
-        self.assertAlmostEqual(string_dissimilarity('a', 'sitelen'),
+        self.assertAlmostEqual(edit_distance_adjusted('a', 'sitelen'),
                                1.75, places=2)
 
 
