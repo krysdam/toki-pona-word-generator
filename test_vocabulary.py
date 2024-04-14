@@ -25,9 +25,8 @@ class TestVocabulary(unittest.TestCase):
         self.assertEqual(len(Vocabulary(words=words).wordforms), 120)
 
     def test_init_is_random(self):
-        # are initialized random words actually random?
-        # words should be heterogeneous.
-        # measure this by looking at the first sounds and shapes of the words.
+        # are initialized wordforms diverse?
+        # measure this by looking at their first sounds and shapes.
         vocab = Vocabulary(count=100)
         first_sounds = set()
         shapes = set()

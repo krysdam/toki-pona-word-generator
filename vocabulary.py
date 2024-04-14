@@ -33,10 +33,10 @@ class Vocabulary:
     """A mapping from Words to Wordforms."""
 
     def __init__(self, words:list=None, count:int=120):
-        """Create a vocabulary with given Words and random unique Wordforms."""
+        """Create a vocabulary with given Words and unique Wordforms."""
         if words is None:
             words = [Word() for _ in range(count)]
-        # randomize wordforms.
+        # assigne wordforms.
         wordforms = WORDFORMS[:len(words)]
         #wordforms = random.sample(WORDFORMS, len(words))
         self.wordforms = dict(zip(words, wordforms))
