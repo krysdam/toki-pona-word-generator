@@ -1,63 +1,40 @@
-import random
+from functools import lru_cache
 
 from constants import *
 
 class Syllable:
-    def __init__(self, syllable:str=None):
-        """Create a syllable from the given string. Else, a random syllable.
+    def __init__(self, syllable:str):
+        """Create a syllable from the given string."""
+        self.onset, self.vowel, self.coda = Syllable.parse(syllable)
+
+    def parse(syllable:str):
+        """Try to parse the given syllable. Return (onset, vowel, coda).
         
-        Warning: if the provided syllable is not a legal syllable,
-        the resulting Syllable will not be legal.
+        If the given string is not a legal syllable, raise a ValueError.
         """
-        if syllable is not None:
-            self.parse_string(syllable)
+        onset = vowel = coda = ''
+        try:
+            # strip off the onset, if any.
+            if syllable[0] in ONSETS:
+                onset = syllable[0]
+                syllable = syllable[1:]
+            # strip off the coda, if any.
+            if syllable[-1] in CODAS:
+                coda = syllable[-1]
+                syllable = syllable[:-1]
+        except IndexError:
+            raise ValueError(f"Invalid syllable: {syllable}")
+        # rest should be a vowel.
+        if syllable in VOWELS:
+            vowel = syllable
         else:
-            self.randomize()
-
-    def parse_string(self, syllable:str):
-        """Try to parse a syllable from the given string.
-        
-        If the given string is not a legal syllable,
-        self.onset will be '' or the first letter,
-        self.coda will be '' or a final n,
-        and self.vowel will be the remaining middle.
-        """
-        self.onset = self.vowel = self.coda = ''
-        if len(syllable) == 0:
-            return
-        if syllable[0] in ONSETS:
-            self.onset = syllable[0]
-            syllable = syllable[1:]
-        if syllable.endswith('n'):
-            self.coda = 'n'
-            syllable = syllable[:-1]
-        self.vowel = syllable
-
-    def is_legal(self):
-        """Is the syllable legal?"""
-        if self.onset + self.vowel in ILLEGAL_SUBSTRINGS:
-            return False
-        return (self.onset in ONSETS and
-                self.vowel in VOWELS and
-                self.coda in CODAS)
-
-    def randomize(self):
-        """Set the syllable to a random legal syllable."""
-        self.onset = random.choice(ONSETS)
-        self.vowel = random.choice(VOWELS)
-        self.coda = random.choice(CODAS)
-        # if the syllable is illegal, try again
-        if not self.is_legal():
-            self.randomize()
-
-    def copy(self):
-        """A copy of the syllable."""
-        s = Syllable()
-        s.onset = self.onset
-        s.vowel = self.vowel
-        s.coda = self.coda
-        return s
+            raise ValueError(f"Invalid syllable: {syllable}")
+        return (onset, vowel, coda)
     
+    def first_sound(self):
+        """The first sound (onset or vowel) of the syllable."""
+        return self.onset or self.vowel
+
     def shape(self):
         """The "shape" of the syllable: O, PO, ON, or PON.
         
@@ -69,30 +46,32 @@ class Syllable:
                  ('N' if self.coda else ''))
         return shape
     
-    def first_sound(self):
-        """The first sound (onset or vowel) of the syllable."""
-        return self.onset if self.onset else self.vowel
-
-    def random_variant(self):
-        """A slight variant of this syllable, altered randomly.
-        
-        Guaranteed to be legal and different from the original."""
-        new_syllable = self.copy()
-        action = random.choice(['onset', 'vowel', 'coda'])
-        if action == 'onset':
-            new_syllable.onset = random.choice(ONSETS)
-        elif action == 'vowel':
-            new_syllable.vowel = random.choice(VOWELS)
-        elif action == 'coda':
-            new_syllable.coda = random.choice(CODAS)
-        # if the new syllable is illegal, try again
-        if not new_syllable.is_legal():
-            return self.random_variant()
-        # if the new syllable is the same as the original, try again
-        if str(new_syllable) == str(self):
-            return self.random_variant()
-        return new_syllable
+    def spelling(self):
+        """The actual letters of the syllable, spelled in order."""
+        return self.onset + self.vowel + self.coda
 
     def __repr__(self):
-        """The string representation of the syllable."""
+        """An unambiguous string representation of the syllable."""
+        return ((self.onset or '_') +
+                self.vowel +
+                (self.coda or '_'))
+
+    def __str__(self):
+        """A simple string representation of the syllable.
+        
+        Currently, this is the same as the spelling(), but I want the option
+        of changing it to something fancier without screwing up everything
+        that relies on spelling."""
         return self.onset + self.vowel + self.coda
+    
+# generate all legal syllables.
+SYLLABLES = []
+for o in ONSETS:
+    for v in VOWELS:
+        for c in CODAS:
+            syl = o + v + c
+            for ill in ILLEGAL_SUBSTRINGS:
+                if ill in syl:
+                    break
+            else:
+                SYLLABLES.append(Syllable(syl))

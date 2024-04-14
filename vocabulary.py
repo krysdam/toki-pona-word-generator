@@ -4,92 +4,77 @@ from itertools import combinations
 from constants import *
 from utils import *
 
-from syllable import Syllable
 from word import Word
+from wordform import Wordform, WORDFORMS
 
 
 # some word shapes that are useful to keep as constants
 SHAPES = [
     # one-syllable words
-    Word('o').shape(),
-    Word('po').shape(),
-    Word('on').shape(),
-    Word('pon').shape(),
+    Wordform('o').shape(),
+    Wordform('po').shape(),
+    Wordform('on').shape(),
+    Wordform('pon').shape(),
     # two-syllable words
-    Word('opo').shape(),
-    Word('opon').shape(),
-    Word('popo').shape(),
-    Word('popon').shape(),
-    Word('onpo').shape(),
-    Word('onpon').shape(),
-    Word('ponpo').shape(),
-    Word('ponpon').shape(),
+    Wordform('opo').shape(),
+    Wordform('opon').shape(),
+    Wordform('popo').shape(),
+    Wordform('popon').shape(),
+    Wordform('onpo').shape(),
+    Wordform('onpon').shape(),
+    Wordform('ponpo').shape(),
+    Wordform('ponpon').shape(),
     # three-syllable words
     # (this is the most common, but there are many others)
-    Word('popopo').shape(),
+    Wordform('popopo').shape(),
     ]
 
 class Vocabulary:
-    """A set of vocabulary terms. Toki Pona's 120 nimi pu is an example."""
+    """A mapping from Words to Wordforms."""
 
     def __init__(self, words:list=None, count:int=120):
-        """Create a vocabulary from a list of words. Else, random words."""
-        # if words are given, parse them
-        if words:
-            self.words = [Word(w) for w in words]
-        # else, start with a list of random, unique words
-        else:
-            self.randomize(count = count)
-    
-    def randomize(self, count:int=120):
-        """Randomize the vocabulary."""
-        syllable_length = 1
-        self.words = []
-        failed_attempts = 0
-        while len(self.words) < count:
-            new_word = Word(syllable_count=syllable_length)
-            if new_word not in self.words:
-                self.words.append(new_word)
-                failed_attempts = 0
-            else:
-                failed_attempts += 1
-                if failed_attempts > 20:
-                    syllable_length += 1
-                    failed_attempts = 0
+        """Create a vocabulary with given Words and random unique Wordforms."""
+        if words is None:
+            words = [Word() for _ in range(count)]
+        # randomize wordforms.
+        wordforms = WORDFORMS[:len(words)]
+        #wordforms = random.sample(WORDFORMS, len(words))
+        self.wordforms = dict(zip(words, wordforms))
 
     def cost(self):
         """The cost ('badness') of this vocabulary."""
         cost = 0
         # cost of each word alone
-        for w1 in self.words:
-            cost += w1.inherent_cost()
+        for w in self.wordforms:
+            wf = self.wordforms[w]
+            cost += wf.inherent_cost()
         # cost of pairs of words
-        for w1, w2 in combinations(self.words, 2):
-            cost += w1.similarity_cost(w2)
+        for wf1, wf2 in combinations(self.wordforms.values(), 2):
+            cost += wf1.similarity_cost(wf2)
         return cost
     
     def alter_if_better(self):
         """Randomly alter this Vocabulary, if it reduces the cost()."""
         old_cost = self.cost()
         # choose one word, and change it randomly in place
-        word_index = random.randrange(0, len(self.words))
-        word = self.words[word_index]
-        new_word = word.random_variant()
-        # if the new word matches an existing word, don't accept the change
-        if new_word in self.words:
+        word, old_wf = random.choice(list(self.wordforms.items()))
+        new_wf = random.choice(WORDFORMS)
+        # if the new wordform matches an existing wordform,
+        # don't accept the change
+        if new_wf in self.wordforms.values():
             return
         # make the change.
+        self.wordforms[word] = new_wf
         # if the cost gets worse (higher), revert the change.
-        self.words[word_index] = new_word
         new_cost = self.cost()
         if new_cost > old_cost:
-            self.words[word_index] = word
+            self.wordforms[word] = old_wf
 
     def bar_graph(self, function, categories):
         """A string bar graph: how many function(word) are in each category?"""
         # count up each category
         counts = [0] * len(categories)
-        for w in self.words:
+        for w in self.wordforms.values():
             for i, c in enumerate(categories):
                 if function(w) == c:
                     counts[i] += 1
@@ -101,7 +86,7 @@ class Vocabulary:
             s += '\n'
         # report the number of words in no category
         counted = sum(counts)
-        uncounted = len(self.words) - counted
+        uncounted = len(self.wordforms) - counted
         if uncounted:
             s += f'(... and {uncounted} others)\n'
         return s
@@ -113,7 +98,8 @@ class Vocabulary:
             if start == '':
                 continue
             s += f'{start}\t'
-            start_with = [w for w in self.words if w.first_sound() == start]
+            start_with = [w for w in self.wordforms.values()
+                          if w.first_sound() == start]
             start_with.sort()
             s += ' '.join(str(w) for w in start_with)
             s += '\n'
@@ -134,21 +120,21 @@ class Vocabulary:
                             
         # length in syllables
         s += 'SYLLABLES\n'
-        lengths = [len(w.syllables) for w in self.words]
+        lengths = [len(w.syllables) for w in self.wordforms.values()]
         max_len = max(lengths)
         s += self.bar_graph(lambda w: len(w.syllables),
                             range(1, max_len+1))
-        avg_len = sum(lengths) / len(self.words)
+        avg_len = sum(lengths) / len(self.wordforms)
         s += f'average syllables = {avg_len:.1f}\n'
         s += '\n'
 
         # length in letters
         s += 'LETTERS\n'
-        lengths = [len(str(w)) for w in self.words]
+        lengths = [len(str(w)) for w in self.wordforms.values()]
         max_len = max(lengths)
         s += self.bar_graph(lambda w: len(str(w)),
                             range(1, max_len+1))
-        avg_len = sum(lengths) / len(self.words)
+        avg_len = sum(lengths) / len(self.wordforms)
         s += f'average letters = {avg_len:.1f}\n'
         s += '\n'
 

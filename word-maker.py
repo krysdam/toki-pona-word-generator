@@ -38,9 +38,10 @@ for w1, w2, d in dissimilarities:
 #vocab = Vocabulary(words=nimi_pu_list)
 #print(vocab)
 vocab = Vocabulary(count=120)
+print(vocab)
 r = 0
 while True:
-    if r % 100 == 0:
+    if r % 1000 == 0:
         print('\n')
         print(f'r = {r}, cost = {vocab.cost():.3f}')
         print(vocab)
