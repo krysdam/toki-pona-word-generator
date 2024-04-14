@@ -35,7 +35,7 @@ class Vocabulary:
     def __init__(self, words:list=None, count:int=120):
         """Create a vocabulary with given Words and unique Wordforms."""
         if words is None:
-            words = [Word() for _ in range(count)]
+            words = [Word(importance=1) for _ in range(count)]
         # assigne wordforms.
         wordforms = WORDFORMS[:len(words)]
         #wordforms = random.sample(WORDFORMS, len(words))
@@ -47,11 +47,11 @@ class Vocabulary:
         # cost of each word alone
         for w in self.wordforms:
             wf = self.wordforms[w]
-            cost += wf.inherent_cost()
-            cost += w.source_cost(wf)
+            cost += wf.inherent_cost() * w.importance
+            cost += w.source_cost(wf) * w.importance
         # cost of pairs of words
-        for wf1, wf2 in combinations(self.wordforms.values(), 2):
-            cost += wf1.similarity_cost(wf2)
+        for (w1, wf1), (w2, wf2) in combinations(self.wordforms.items(), 2):
+            cost += wf1.similarity_cost(wf2) * w1.importance * w2.importance
         return cost
     
     def alter_if_better(self):
