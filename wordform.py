@@ -5,6 +5,12 @@ from utils import *
 
 from syllable import Syllable, SYLLABLES
 
+# number of wordforms to cache.
+# (for methods that take two instance, this is squared.)
+# (recommend about as many as the size of the vocab,
+#  although significantly fewer seems to somehow work too.)
+CACHINESS = 128
+
 class Wordform:
     def __init__(self, word:str=None, syllables:list=None):
         """Create a word. If none provided, raise a ValueError."""
@@ -49,10 +55,12 @@ class Wordform:
                     break
         return syllables
 
+    @lru_cache(maxsize=CACHINESS)
     def first_sound(self):
         """The first sound (onset or vowel) of the word."""
         return self.syllables[0].first_sound()
 
+    @lru_cache(maxsize=CACHINESS)
     def shape(self):
         """The "shape" of the word.
         
@@ -62,7 +70,7 @@ class Wordform:
         """
         return ''.join([s.shape() for s in self.syllables])
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=CACHINESS)
     def inherent_cost(self):
         """The cost of this wordform. Higher is worse.
         
@@ -72,12 +80,12 @@ class Wordform:
         In other words, an initial glottal stop counts as 0.5 letters.
         """
         cost = 0
-        cost += len(str(self))
+        cost += len(self.spelling())
         if self.first_sound() in VOWELS:
             cost += 0.5
         return cost
 
-    @lru_cache(maxsize=128*128)
+    @lru_cache(maxsize=CACHINESS*CACHINESS)
     def similarity_cost(self, other):
         """The cost of the similarity of two wordforms. Higher is more similar.
 
@@ -89,7 +97,7 @@ class Wordform:
         First sound: if first sound is the same, add 0.1 to cost.
         """
         cost = 0
-        s1, s2 = str(self), str(other)
+        s1, s2 = self.spelling(), other.spelling()
         # if one is a prefix, add 2 + length of the prefix
         if s1.startswith(s2) or s2.startswith(s1):
             cost += 2 + min(len(s1), len(s2))
@@ -109,6 +117,7 @@ class Wordform:
         """Compare two wordforms by their spellings."""
         return self.spelling() > other.spelling()
     
+    @lru_cache(maxsize=CACHINESS)
     def spelling(self):
         """The actual letters of the wordform, spelled in order."""
         return ''.join([s.spelling() for s in self.syllables])
