@@ -48,6 +48,7 @@ class Vocabulary:
         for w in self.wordforms:
             wf = self.wordforms[w]
             cost += wf.inherent_cost()
+            cost += w.source_cost(wf)
         # cost of pairs of words
         for wf1, wf2 in combinations(self.wordforms.values(), 2):
             cost += wf1.similarity_cost(wf2)
