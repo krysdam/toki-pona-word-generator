@@ -87,6 +87,12 @@ class Vocabulary:
         For example, a bar graph showing the lengths of words
         might look like this:
         LENGTHS  1 222 3333333 44444444444444444444444444444 55 66666 7
+
+        If any label is longer than one character,
+        bars are one copy of the lable, followed by one equal sign per word.
+        For example, a bar graph showing the shapes of words
+        might look like this:
+        SHAPE    O== PO===== ON== POPO============= ONPO ====== PONPO===
         """
         # collect values
         values = []
@@ -94,15 +100,24 @@ class Vocabulary:
             wf = self.wordforms[w]
             values.append(function(wf))
         values.sort()
+        labels = [str(v) for v in values]
+        long_labels = any(len(l) > 1 for l in labels)
         
         # make string
         s = f'{title:16s}'
-        for i in range(len(values)):
-            prev = values[i-1]
-            v = values[i]
-            if (i == 0) or prev != v:
-                s += '  ' + str(v)
-            s += '='
+        for i in range(len(labels)):
+            prev = labels[i-1]
+            label = labels[i]
+            new_bar = (i == 0) or (label != prev)
+            if long_labels:
+                if new_bar:
+                    s += '  ' + label
+                s += '='
+            else:
+                if new_bar:
+                    s += '  '
+                s += label
+            
         s += '\n'
         return s
 
