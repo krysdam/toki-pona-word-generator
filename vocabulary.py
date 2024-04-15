@@ -79,25 +79,31 @@ class Vocabulary:
         if new_cost > old_cost:
             self.wordforms[word] = old_wf
 
-    def bar_graph(self, function, categories):
-        """A string bar graph: how many function(word) are in each category?"""
-        # count up each category
-        counts = [0] * len(categories)
-        for w in self.wordforms.values():
-            for i, c in enumerate(categories):
-                if function(w) == c:
-                    counts[i] += 1
-        # draw a bar for each category
-        s = ''
-        for i, c in enumerate(categories):
-            s += str(c) + '\t'
-            s += 'X' * counts[i]
-            s += '\n'
-        # report the number of words in no category
-        counted = sum(counts)
-        uncounted = len(self.wordforms) - counted
-        if uncounted:
-            s += f'(... and {uncounted} others)\n'
+    def bar_graph(self, title, function):
+        """A string bar graph: how many function(word) are in each category?
+        
+        This is a horizontal stacked bar graph.
+        Each bar is composed of repeated copies of the bar's label.
+        For example, a bar graph showing the lengths of words
+        might look like this:
+        LENGTHS  1 222 3333333 44444444444444444444444444444 55 66666 7
+        """
+        # collect values
+        values = []
+        for w in self.wordforms:
+            wf = self.wordforms[w]
+            values.append(function(wf))
+        values.sort()
+        
+        # make string
+        s = f'{title:16s}'
+        for i in range(len(values)):
+            prev = values[i-1]
+            v = values[i]
+            if (i == 0) or prev != v:
+                s += '  ' + str(v)
+            s += '='
+        s += '\n'
         return s
 
     def __str__(self):
@@ -114,49 +120,34 @@ class Vocabulary:
             s += '\n'
         s += '\n'
 
-         # shapes
-        s += 'FIRST SOUND\n'
-        s += self.bar_graph(lambda w: w.first_sound(),
-                            [start for start in VOWELS + ONSETS
-                             if start != ''])
+        # bar graphs to show distribution of wordforms:
+        # first sound, shape, length in syllables, length in letters.
+        s += self.bar_graph('FIRST SOUND',
+                            lambda wf: wf.first_sound())
+        s += self.bar_graph('SHAPE',
+                            lambda wf: wf.shape())                            
+        s += self.bar_graph('SYLLABLES',
+                            lambda wf: len(wf.syllables))
+        s += self.bar_graph('LETTERS',
+                            lambda wf: len(wf.spelling()))
         s += '\n'
 
-        # shapes
-        s += 'SHAPES\n'
-        s += self.bar_graph(lambda w: w.shape(),
-                            SHAPES)
-        s += '\n'
-                            
-        # length in syllables
-        s += 'SYLLABLES\n'
-        lengths = [len(w.syllables) for w in self.wordforms.values()]
-        max_len = max(lengths)
-        s += self.bar_graph(lambda w: len(w.syllables),
-                            range(1, max_len+1))
-        avg_len = sum(lengths) / len(self.wordforms)
-        s += f'average syllables = {avg_len:.1f}\n'
-        s += '\n'
-
-        # length in letters
-        s += 'LETTERS\n'
-        lengths = [len(str(w)) for w in self.wordforms.values()]
-        max_len = max(lengths)
-        s += self.bar_graph(lambda w: len(str(w)),
-                            range(1, max_len+1))
-        avg_len = sum(lengths) / len(self.wordforms)
-        s += f'average letters = {avg_len:.1f}\n'
-        s += '\n'
-
+        """
         # importance
         s += 'IMPORTANCE\n'
         for imp in range(21):
             s += f'{imp/10:.1f}\t'
             has_imp = [w for w in self.wordforms
                        if int(w.importance*10) == imp]
-            word_forms = [self.wordforms[w] for w in has_imp]
-            word_forms.sort()
-            s += ' '.join(w.spelling() for w in word_forms)
+            for w in has_imp:
+                s += f' {w!s}->{self.wordforms[w]!s}'
             s += '\n'
+        """
+
+        # importance
+        s += 'IMPORTANCE\n'
+        for w in sorted(self.wordforms, reverse=True):
+            s += f'{w!s} -> {self.wordforms[w]!s}\n'
 
         s = s.strip()
         return s
