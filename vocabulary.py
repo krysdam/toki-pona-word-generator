@@ -35,8 +35,15 @@ class Vocabulary:
     def __init__(self, words:list=None, count:int=120):
         """Create a vocabulary with given Words and unique Wordforms."""
         if words is None:
-            words = [Word(importance=1) for _ in range(count)]
-        # assigne wordforms.
+            words = []
+            # give words random importances,
+            # approximately a normal distribution with a mean of 1.
+            for _ in range(count):
+                importance = sum([random.random()*.5 for _ in range(4)])
+                words.append(Word(importance=importance))
+        # sort words, most important first.
+        words = sorted(words, reverse=True)
+        # assign wordforms, shortest first.
         wordforms = WORDFORMS[:len(words)]
         #wordforms = random.sample(WORDFORMS, len(words))
         self.wordforms = dict(zip(words, wordforms))
@@ -51,7 +58,8 @@ class Vocabulary:
             cost += w.source_cost(wf) * w.importance
         # cost of pairs of words
         for (w1, wf1), (w2, wf2) in combinations(self.wordforms.items(), 2):
-            cost += wf1.similarity_cost(wf2) * w1.importance * w2.importance
+            cost += (wf1.similarity_cost(wf2) *
+                     max(w1.importance, w2.importance))
         return cost
     
     def alter_if_better(self):
@@ -138,6 +146,17 @@ class Vocabulary:
         avg_len = sum(lengths) / len(self.wordforms)
         s += f'average letters = {avg_len:.1f}\n'
         s += '\n'
+
+        # importance
+        s += 'IMPORTANCE\n'
+        for imp in range(21):
+            s += f'{imp/10:.1f}\t'
+            has_imp = [w for w in self.wordforms
+                       if int(w.importance*10) == imp]
+            word_forms = [self.wordforms[w] for w in has_imp]
+            word_forms.sort()
+            s += ' '.join(w.spelling() for w in word_forms)
+            s += '\n'
 
         s = s.strip()
         return s

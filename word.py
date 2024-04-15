@@ -9,3 +9,9 @@ class Word():
 
         Currently, Words have no source wordforms, so this is always zero."""
         return 0
+    
+    def __gt__(self, other):
+        return self.importance > other.importance
+    
+    def __repr__(self):
+        return f"Word({self.importance:.3f})"
