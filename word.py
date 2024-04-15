@@ -1,17 +1,30 @@
+from functools import lru_cache
+
+from utils import edit_distance
 from wordform import Wordform
 
 class Word():
-    def __init__(self, importance:int=1):
+    def __init__(self, importance:int=1, source:str=''):
         self.importance = importance
+        self.source = source
 
+    @lru_cache(maxsize=8)
     def source_cost(self, wordform:Wordform):
         """The cost of the dissimilarity of this word to its source wordforms.
 
-        Currently, Words have no source wordforms, so this is always zero."""
-        return 0
+        With just one soure wordform, this is simply the edit distance.
+        Consider the source English word 'currency' represented as 'kalensi'.
+        Consider the two candidate Wordforms:
+          'kalensi' (which is a perfect match)
+          'sitelen' (which is arbitrary)
+        For an English speaker, 'kalensi' takes almost no effort to learn,
+        while 'sitelen' takes full effort (all 7 letters must be memorized).
+        """
+        return edit_distance(self.source,
+                             wordform.spelling())
     
     def __gt__(self, other):
         return self.importance > other.importance
     
     def __repr__(self):
-        return f"Word({self.importance:.3f})"
+        return f"{self.source}({self.importance:.3f})"

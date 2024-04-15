@@ -1,6 +1,7 @@
 from constants import *
 from utils import *
 
+from word import Word
 from vocabulary import Vocabulary
 
 nimi_pu_list = [
@@ -33,11 +34,39 @@ dissimilarities.sort(key=lambda x: x[2])
 for w1, w2, d in dissimilarities:
     print(f'{w1} - {w2} = {d:.3f} = {(1/d/d - 1)/5}')
     """
-        
+
+d = 1000
+
+toki_ni_words = [Word( 1041/d, 'wan'),    # wan
+                 Word( 5230/d, 'meni'),   # mute
+                 Word(21154/d, 'pi'),     # li
+                 Word(16893/d, ''),       # e
+                 Word(11728/d, 'ai'),     # mi
+                 Word( 8202/d, 'ju'),     # sina
+                 Word( 1547/d, 'pik'),    # suli
+                 Word( 2523/d, 'smal'),   # lili
+                 Word( 5046/d, 'kut'),    # pona
+                 Word( 2133/d, 'pat'),    # ike
+                 Word(  230/d, 'let'),    # loje
+                 Word(  140/d, 'jelo'),   # jelo
+                 Word(  130/d, 'klin'),   # peta ('green')
+                 Word(  130/d, 'plu'),    # laso
+                 Word(  604/d, 'plak'),   # pimeja
+                 Word(  310/d, 'wait'),   # walo
+                 Word(  334/d, 'kala'),   # kule
+                 Word(  904/d, 'mani'),   # mani
+                 Word(  637/d, 'plant'),  # kasi
+                 Word(  983/d, 'animal'), # soweli
+                 Word(  500/d, 'laip'),   # konwe ('life')
+                 Word(10374/d, 'pok')     # jan
+]
+
+
 
 #vocab = Vocabulary(words=nimi_pu_list)
 #print(vocab)
-vocab = Vocabulary(count=120)
+#vocab = Vocabulary(count=120)
+vocab = Vocabulary(words=toki_ni_words)
 print(vocab)
 r = 0
 while True:
