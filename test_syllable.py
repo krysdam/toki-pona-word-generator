@@ -1,6 +1,6 @@
 import unittest
 
-from syllable import *
+from syllable import Syllable, SYLLABLES
 
 class TestSyllable(unittest.TestCase):
     def test_init(self):

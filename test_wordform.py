@@ -1,6 +1,7 @@
 import unittest
 
-from wordform import *
+from syllable import Syllable
+from wordform import Wordform, WORDFORMS_1SYL, WORDFORMS_2SYL, WORDFORMS
 
 class TestWord(unittest.TestCase):
     def test_init_parse_1syl(self):

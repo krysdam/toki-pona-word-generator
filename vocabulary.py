@@ -1,8 +1,7 @@
 import random
 from itertools import combinations
 
-from constants import *
-from utils import *
+from constants import ONSETS, VOWELS
 
 from word import Word
 from wordform import Wordform, WORDFORMS

@@ -1,6 +1,7 @@
 import unittest
 
-from vocabulary import *
+from word import Word
+from vocabulary import Vocabulary
 
 class TestVocabulary(unittest.TestCase):
     def test_init_from_count(self):

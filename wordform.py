@@ -1,7 +1,7 @@
 from functools import lru_cache
 
-from constants import *
-from utils import *
+from constants import VOWELS
+from utils import edit_distance_adjusted
 
 from syllable import Syllable, SYLLABLES
 

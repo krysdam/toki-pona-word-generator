@@ -1,6 +1,3 @@
-from constants import *
-from utils import *
-
 from word import Word
 from vocabulary import Vocabulary
 
@@ -24,16 +21,6 @@ nimi_pu_list = [
     'unpa', 'uta', 'utala', 'walo', 'wan', 'waso', 'wawa', 'weka', 'wile'
     ]
 
-"""
-dissimilarities = []
-for w1, w2 in combinations(nimi_pu_list, 2):
-    dissimilarity = string_dissimilarity(w1, w2)
-    if dissimilarity < 1.00:
-        dissimilarities.append((w1, w2, dissimilarity))
-dissimilarities.sort(key=lambda x: x[2])
-for w1, w2, d in dissimilarities:
-    print(f'{w1} - {w2} = {d:.3f} = {(1/d/d - 1)/5}')
-    """
 
 d = 1000
 

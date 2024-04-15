@@ -1,6 +1,4 @@
-from functools import lru_cache
-
-from constants import *
+from constants import ONSETS, VOWELS, CODAS, ILLEGAL_SUBSTRINGS
 
 class Syllable:
     def __init__(self, syllable:str):
@@ -31,12 +29,10 @@ class Syllable:
             raise ValueError(f"Invalid syllable: {syllable}")
         return (onset, vowel, coda)
     
-    #@lru_cache(maxsize=None)
     def first_sound(self):
         """The first sound (onset or vowel) of the syllable."""
         return self.onset or self.vowel
 
-    #@lru_cache(maxsize=None)
     def shape(self):
         """The "shape" of the syllable: O, PO, ON, or PON.
         
@@ -48,7 +44,6 @@ class Syllable:
                  ('N' if self.coda else ''))
         return shape
     
-    #@lru_cache(maxsize=None)
     def spelling(self):
         """The actual letters of the syllable, spelled in order."""
         return self.onset + self.vowel + self.coda
