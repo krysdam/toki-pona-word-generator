@@ -1,15 +1,9 @@
 from functools import lru_cache
 
-from constants import VOWELS
+from constants import CACHINESS, VOWELS
 from utils import edit_distance_adjusted
 
 from syllable import Syllable, SYLLABLES
-
-# number of wordforms to cache.
-# (for methods that take two instance, this is squared.)
-# (recommend about as many as the size of the vocab,
-#  although significantly fewer seems to somehow work too.)
-CACHINESS = 128
 
 class Wordform:
     def __init__(self, word:str=None, syllables:list=None):

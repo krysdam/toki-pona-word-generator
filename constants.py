@@ -1,3 +1,9 @@
+# number of instances to cache in Word and Wordform methods.
+# (for methods that take two instance, this is squared.)
+# (recommend about as many as the size of the vocab,
+#  although significantly fewer seems to somehow work too.)
+CACHINESS = 128
+
 # toki pona's phonology
 ONSETS = ['', 'p', 't', 'k', 's', 'm', 'n', 'l', 'w', 'j']
 VOWELS = ['i', 'e', 'a', 'o', 'u']

@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from constants import CACHINESS
 from utils import edit_distance
 from wordform import Wordform
 
@@ -8,7 +9,7 @@ class Word():
         self.importance = importance
         self.source = source
 
-    @lru_cache(maxsize=8)
+    @lru_cache(maxsize=CACHINESS)
     def source_cost(self, wordform:Wordform):
         """The cost of the dissimilarity of this word to its source wordforms.
 
