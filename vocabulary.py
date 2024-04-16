@@ -42,10 +42,25 @@ class Vocabulary:
                 words.append(Word(importance=importance))
         # sort words, most important first.
         words = sorted(words, reverse=True)
-        # assign wordforms, shortest first.
-        wordforms = WORDFORMS[:len(words)]
-        #wordforms = random.sample(WORDFORMS, len(words))
-        self.wordforms = dict(zip(words, wordforms))
+        self.wordforms = {w: None for w in words}
+        self.set_favorites()
+
+    def set_favorites(self):
+        """Set Wordforms so as to minimize inherent and source costs only."""
+        print("INITIALIZING...")
+        for w in sorted(self.wordforms, reverse=True):
+            # best wordforms first.
+            solo_cost = lambda wf: wf.inherent_cost() + w.source_cost(wf)
+            best_wordforms = sorted(WORDFORMS, key=solo_cost)
+            # take the first wordfrom that isn't already in the vocabulary.
+            for wf in best_wordforms:
+                if wf in self.wordforms.values():
+                    print(f'{w!s} wants {wf!s}, but it is already taken.')
+                    pass
+                else:
+                    print(f'{w!s} -> {wf!s}')
+                    self.wordforms[w] = wf
+                    break
 
     def cost(self):
         """The cost ('badness') of this vocabulary."""
