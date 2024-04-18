@@ -54,7 +54,7 @@ class Vocabulary:
 
     def set_favorites(self):
         """Set Wordforms so as to minimize inherent and source costs only."""
-        #print("INITIALIZING...")
+        print("INITIALIZING...")
         for w in self.words:
             # best wordforms first.
             solo_cost = lambda wf: wf.inherent_cost() + w.source_cost(wf)
@@ -62,10 +62,10 @@ class Vocabulary:
             # take the first wordfrom that isn't already in the vocabulary.
             for wf in best_wordforms:
                 if wf in self.wordforms.values():
-                    #print(f'{w!s} wants {wf!s}, but it is already taken.')
+                    print(f'{w!s} wants {wf!s}, but it is already taken.')
                     pass
                 else:
-                    #print(f'{w!s} -> {wf!s}')
+                    print(f'{w!s} -> {wf!s}')
                     self.wordforms[w] = wf
                     break
 
@@ -80,8 +80,14 @@ class Vocabulary:
             cost += w.source_cost(wf) * importance
         # cost of pairs of words
         for (w1, wf1), (w2, wf2) in combinations(self.wordforms.items(), 2):
-            importance = max(self.importances[w1], self.importances[w2])
-            cost += wf1.similarity_cost(wf2) * importance
+            # importance is double the product of the importances,
+            # because we're only actually visiting each pair once,
+            # while the full cartesian product would visit each pair twice.
+            importance = self.importances[w1] * self.importances[w2] * 2
+            cost += wf1.edit_distance_cost(wf2) * importance
+            cost += wf1.word_shape_cost(wf2) * importance
+            cost += wf1.first_sound_cost(wf2) * importance
+            cost += wf1.prefix_cost(wf2) * 1.0
         return cost
     
     def alter_if_better(self):

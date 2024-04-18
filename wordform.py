@@ -78,34 +78,30 @@ class Wordform:
         if self.first_sound() in VOWELS:
             cost += 0.5
         return cost
-
-    @lru_cache(maxsize=CACHINESS*CACHINESS)
-    def similarity_cost(self, other):
-        """The cost of the similarity of two wordforms. Higher is more similar.
-
-        Similar words are bad. This is counted in a few ways.
-        Prefixes: If one wordform is a prefix of another, that's very bad.
-            Add (2 + length of the prefix) to the cost.
-        Edit distance: if adjusted edit distance < 0.5, add 1/that to cost.
-        Word shape: if shape is the same, add 0.1 to cost.
-        First sound: if first sound is the same, add 0.1 to cost.
-        """
+    
+    @lru_cache(maxsize=CACHINESS)
+    def prefix_cost(self, other):
+        """The cost of one of these wordforms being a prefix of the other."""
         cost = 0
         s1, s2 = self.spelling(), other.spelling()
-        # if one is a prefix, add 2 + length of the prefix
         if s1.startswith(s2) or s2.startswith(s1):
             cost += 2 + min(len(s1), len(s2))
-        # if the wordforms are similar, add 1/dissimilarity
-        dissimilarity = edit_distance_adjusted(s1, s2)
-        if dissimilarity < 0.5:
-            cost += 1 / (dissimilarity)
-        # if the shapes are the same, add 0.1
-        if self.shape() == other.shape():
-            cost += 0.1
-        # if the first sound is the same, add 0.1
-        if self.first_sound() == other.first_sound():
-            cost += 0.1
         return cost
+    
+    @lru_cache(maxsize=CACHINESS*CACHINESS)
+    def edit_distance_cost(self, other):
+        """The cost of the edit distance between two wordforms."""
+        return edit_distance_adjusted(self.spelling(), other.spelling())
+    
+    @lru_cache(maxsize=CACHINESS*CACHINESS)
+    def word_shape_cost(self, other):
+        """The cost of these wordforms having the same shape."""
+        return int(self.shape() == other.shape())
+    
+    @lru_cache(maxsize=CACHINESS*CACHINESS)
+    def first_sound_cost(self, other):
+        """The cost of these wordforms having the same first sound."""
+        return int(self.first_sound() == other.first_sound())
 
     def __gt__(self, other):
         """Compare two wordforms by their spellings."""
