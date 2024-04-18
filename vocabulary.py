@@ -31,34 +31,41 @@ SHAPES = [
 class Vocabulary:
     """A mapping from Words to Wordforms."""
 
-    def __init__(self, words:list=None, count:int=120):
-        """Create a vocabulary with given Words and unique Wordforms."""
-        if words is None:
-            words = []
-            # give words random importances,
-            # approximately a normal distribution with a mean of 1.
-            for _ in range(count):
-                importance = sum([random.random()*.5 for _ in range(4)])
-                words.append(Word(importance=importance))
-        # sort words, most important first.
-        words = sorted(words, reverse=True)
+    def __init__(self, words:list, importances:list=None):
+        """Create a vocabulary with given Words with the given importances.
+        
+        Importances are normalized to sum to 1.
+        If none are given, all importances will be 1/len(words)."""
+        self.size = len(words)
+        # importance is a dict from Word to (normalized) importance
+        if importances:
+            total_imp = sum(importances)
+            normalized_imp = [i/total_imp for i in importances]
+            self.importances = dict(zip(words, normalized_imp))
+        else:
+            self.importances = {w: 1/self.size for w in words}
+        # words is a list of Words, highest importance first
+        self.words = sorted(words,
+                            key=lambda w: self.importances[w],
+                            reverse=True)
+        # wordforms is a dict from Word to Wordform
         self.wordforms = {w: None for w in words}
         self.set_favorites()
 
     def set_favorites(self):
         """Set Wordforms so as to minimize inherent and source costs only."""
-        print("INITIALIZING...")
-        for w in sorted(self.wordforms, reverse=True):
+        #print("INITIALIZING...")
+        for w in self.words:
             # best wordforms first.
             solo_cost = lambda wf: wf.inherent_cost() + w.source_cost(wf)
             best_wordforms = sorted(WORDFORMS, key=solo_cost)
             # take the first wordfrom that isn't already in the vocabulary.
             for wf in best_wordforms:
                 if wf in self.wordforms.values():
-                    print(f'{w!s} wants {wf!s}, but it is already taken.')
+                    #print(f'{w!s} wants {wf!s}, but it is already taken.')
                     pass
                 else:
-                    print(f'{w!s} -> {wf!s}')
+                    #print(f'{w!s} -> {wf!s}')
                     self.wordforms[w] = wf
                     break
 
@@ -67,13 +74,14 @@ class Vocabulary:
         cost = 0
         # cost of each word alone
         for w in self.wordforms:
+            importance = self.importances[w]
             wf = self.wordforms[w]
-            cost += wf.inherent_cost() * w.importance
-            cost += w.source_cost(wf) * w.importance
+            cost += wf.inherent_cost() * importance
+            cost += w.source_cost(wf) * importance
         # cost of pairs of words
         for (w1, wf1), (w2, wf2) in combinations(self.wordforms.items(), 2):
-            cost += (wf1.similarity_cost(wf2) *
-                     max(w1.importance, w2.importance))
+            importance = max(self.importances[w1], self.importances[w2])
+            cost += wf1.similarity_cost(wf2) * importance
         return cost
     
     def alter_if_better(self):
@@ -175,8 +183,11 @@ class Vocabulary:
 
         # importance
         s += 'IMPORTANCE\n'
-        for w in sorted(self.wordforms, reverse=True):
-            s += f'{w!s} -> {self.wordforms[w]!s}\n'
-
+        for w in self.words:
+            s += f'{self.importances[w]:.3f} '
+            s += f'{w!s:16s} '
+            s += '-> '
+            s += f'{self.wordforms[w]!s}'
+            s += '\n'
         s = s.strip()
         return s

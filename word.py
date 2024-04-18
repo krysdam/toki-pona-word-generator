@@ -5,8 +5,7 @@ from utils import edit_distance
 from wordform import Wordform
 
 class Word():
-    def __init__(self, importance:int=1, source:str=''):
-        self.importance = importance
+    def __init__(self, source:str=''):
         self.source = source
 
     @lru_cache(maxsize=CACHINESS)
@@ -24,8 +23,5 @@ class Word():
         return edit_distance(self.source,
                              wordform.spelling())
     
-    def __gt__(self, other):
-        return self.importance > other.importance
-    
     def __repr__(self):
-        return f"{self.source}({self.importance:.3f})"
+        return f"Word('{self.source}')"

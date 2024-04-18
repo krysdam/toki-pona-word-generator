@@ -22,44 +22,22 @@ nimi_pu_list = [
     ]
 
 
-d = 1000
-
-toki_ni_words = [Word( 1041/d, 'wan'),    # wan
-                 Word( 5230/d, 'meni'),   # mute
-                 Word(21154/d, 'pi'),     # li
-                 Word(16893/d, ''),       # e
-                 Word(11728/d, 'ai'),     # mi
-                 Word( 8202/d, 'ju'),     # sina
-                 Word( 1547/d, 'pik'),    # suli
-                 Word( 2523/d, 'smal'),   # lili
-                 Word( 5046/d, 'kut'),    # pona
-                 Word( 2133/d, 'pat'),    # ike
-                 Word(  230/d, 'let'),    # loje
-                 Word(  140/d, 'jelo'),   # jelo
-                 Word(  130/d, 'klin'),   # peta ('green')
-                 Word(  130/d, 'plu'),    # laso
-                 Word(  604/d, 'plak'),   # pimeja
-                 Word(  310/d, 'wait'),   # walo
-                 Word(  334/d, 'kala'),   # kule
-                 Word(  904/d, 'mani'),   # mani
-                 Word(  637/d, 'plant'),  # kasi
-                 Word(  983/d, 'animal'), # soweli
-                 Word(  500/d, 'laip'),   # konwe ('life')
-                 Word(10374/d, 'pok')     # jan
-]
+toki_ni_imp = [328, 2242, 11430, 12551, 4012, 703, 1594, 6479, 1703, 77, 57, 54, 54, 255, 96, 109, 168, 283, 352, 400, 3736]
+toki_ni_words = [Word('wan'), Word('meni'), Word('pi'), Word('aj'), Word('ju'), Word('pik'), Word('smal'), Word('kut'), Word('pat'), Word('let'), Word('jelo'), Word('klin'), Word('plu'), Word('plak'), Word('wajt'), Word('kala'), Word('mani'), Word('plant'), Word('animal'), Word('lajp'), Word('pok')]
 
 
 
 #vocab = Vocabulary(words=nimi_pu_list)
 #print(vocab)
 #vocab = Vocabulary(count=120)
-vocab = Vocabulary(words=toki_ni_words)
-print(vocab)
+vocab = Vocabulary(words=toki_ni_words, importances=toki_ni_imp)
+#vocab = Vocabulary(words=nimi_pu_words)
 r = 0
 while True:
     if r % 1000 == 0:
         print('\n')
         print(f'r = {r}, cost = {vocab.cost():.3f}')
+        #vocab.print_costs()
         print(vocab)
     vocab.alter_if_better()
     r += 1
