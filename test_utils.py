@@ -40,19 +40,30 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(edit_distance('contemporary', 'contemptible'), 5)
         self.assertEqual(edit_distance('arithmetic', 'arithmetics'), 1)
 
-    def test_edit_distance_adjusted(self):
-        self.assertAlmostEqual(edit_distance_adjusted('anpa', 'nanpa'),
-                               0.22, places=2)
-        self.assertAlmostEqual(edit_distance_adjusted('kama', 'kala'),
-                               0.25, places=2)
-        self.assertAlmostEqual(edit_distance_adjusted('mama', 'wawa'),
-                               0.50, places=2)
-        self.assertAlmostEqual(edit_distance_adjusted('tawa', 'kasi'),
-                               0.75, places=2)
-        self.assertAlmostEqual(edit_distance_adjusted('telo', 'musi'),
-                               1.00, places=2)
-        self.assertAlmostEqual(edit_distance_adjusted('a', 'sitelen'),
-                               1.75, places=2)
+    def test_longest_common_subsequence_of_zero(self):
+        # longest common subsequence for no common characters
+        self.assertEqual(longest_common_subsequence('a', 'b'), 0)
+        self.assertEqual(longest_common_subsequence('ab', 'cd'), 0)
+        self.assertEqual(longest_common_subsequence('abc', 'def'), 0)
+        self.assertEqual(longest_common_subsequence('abcd', 'efgh'), 0)
+
+    def test_longest_common_subsequence_other(self):
+        # other cases
+        self.assertEqual(longest_common_subsequence('abc', 'abc'), 3)
+        self.assertEqual(longest_common_subsequence('abc', 'abx'), 2)
+        self.assertEqual(longest_common_subsequence('abc', 'xbc'), 2)
+        self.assertEqual(longest_common_subsequence('abc', 'axc'), 2)
+
+    def test_similarity(self):
+        self.assertAlmostEqual(similarity('sitelen', 'sitelen'), 1)
+        self.assertAlmostEqual(similarity('sitelen', 'sitewen'), (6/7)**2)
+        self.assertAlmostEqual(similarity('kala', 'kama'), (3/4)**2)
+        self.assertAlmostEqual(similarity('kala', 'ala'), (3/4)**2)
+        self.assertAlmostEqual(similarity('ala', 'ale'), (2/3)**2)
+        self.assertAlmostEqual(similarity('sitelen', 'kepeken'), (3/7)**2)
+        self.assertAlmostEqual(similarity('musi', 'sitelen'), (2/7)**2)
+        self.assertAlmostEqual(similarity('a', 'musi'), 0)
+
 
 
 if __name__ == '__main__':

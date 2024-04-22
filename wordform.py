@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 from constants import CACHINESS, VOWELS
-from utils import edit_distance_adjusted
+from utils import similarity
 
 from syllable import Syllable, SYLLABLES
 
@@ -89,9 +89,13 @@ class Wordform:
         return cost
     
     @lru_cache(maxsize=CACHINESS*CACHINESS)
-    def edit_distance_cost(self, other):
-        """The cost of the edit distance between two wordforms."""
-        return edit_distance_adjusted(self.spelling(), other.spelling())
+    def similarity_cost(self, other):
+        """The cost of these wordforms being similar strings, from 0 to 1.
+        
+        For example, kala and alasa have some similarity,
+        although they don't have the same shape or same first sound.
+        """
+        return similarity(str(self), str(other))
     
     @lru_cache(maxsize=CACHINESS*CACHINESS)
     def word_shape_cost(self, other):

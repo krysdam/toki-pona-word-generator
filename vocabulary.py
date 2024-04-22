@@ -61,11 +61,13 @@ class Vocabulary:
             best_wordforms = sorted(WORDFORMS, key=solo_cost)
             # take the first wordfrom that isn't already in the vocabulary.
             for wf in best_wordforms:
+                inherent_cost = wf.inherent_cost()
+                source_cost = w.source_cost(wf)
                 if wf in self.wordforms.values():
-                    print(f'{w!s} wants {wf!s}, but it is already taken.')
+                    print(f'{w!s} wants {wf!s} ({inherent_cost} + {source_cost} = {inherent_cost+source_cost}), but it is already taken.')
                     pass
                 else:
-                    print(f'{w!s} -> {wf!s}')
+                    print(f'{w!s} -> {wf!s} ({inherent_cost} + {source_cost} = {inherent_cost+source_cost})\n')
                     self.wordforms[w] = wf
                     break
 
@@ -84,9 +86,9 @@ class Vocabulary:
             # because we're only actually visiting each pair once,
             # while the full cartesian product would visit each pair twice.
             importance = self.importances[w1] * self.importances[w2] * 2
-            cost += wf1.edit_distance_cost(wf2) * importance
-            cost += wf1.word_shape_cost(wf2) * importance
-            cost += wf1.first_sound_cost(wf2) * importance
+            cost += wf1.similarity_cost(wf2) * importance * 10.0
+            cost += wf1.word_shape_cost(wf2) * importance * 2.5
+            cost += wf1.first_sound_cost(wf2) * importance * 2.5
             cost += wf1.prefix_cost(wf2) * 1.0
         return cost
     

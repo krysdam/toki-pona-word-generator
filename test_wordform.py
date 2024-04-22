@@ -172,8 +172,6 @@ class TestWord(unittest.TestCase):
                            .similarity_cost(Wordform('kalama')))
         self.assertGreater(Wordform('anpa').similarity_cost(Wordform('nanpa')),
                            Wordform('anpa').similarity_cost(Wordform('monsi')))
-        self.assertGreater(Wordform('telo').similarity_cost(Wordform('wawa')),
-                           Wordform('telo').similarity_cost(Wordform('wawan')))
         self.assertGreater(Wordform('taso').similarity_cost(Wordform('tu')),
                            Wordform('taso').similarity_cost(Wordform('mu')))
 

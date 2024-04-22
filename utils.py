@@ -17,15 +17,26 @@ def edit_distance(s1, s2):
                                    dp[i - 1][j - 1])
     return dp[m][n]
 
-def edit_distance_adjusted(s1, s2):
-    """The 'dissimilarity' of two strings. Edit distance over average length.
+def longest_common_subsequence(s1, s2):
+    """Length of the longest common subsequence between two strings."""
+    if len(s1) < len(s2):
+        return longest_common_subsequence(s2, s1)
+    previous_row = [0] * (len(s2) + 1)
+    for c1 in s1:
+        current_row = [0]
+        for j, c2 in enumerate(s2):
+            if c1 == c2:
+                current_row.append(previous_row[j] + 1)
+            else:
+                current_row.append(max(current_row[-1], previous_row[j + 1]))
+        previous_row = current_row
+    return previous_row[-1]
+
+def similarity(s1, s2):
+    """Longest common subsequence over the length of the longer word, squared.
     
-    Examples:
-    anpa nanpa = 1/4.5 = 0.22
-    kama kala = 1/4 = 0.25
-    mama wawa = 2/4 = 0.50
-    tawa kasi = 3/4 = 0.75
-    telo musi = 4/4 = 1.00
-    a sitelen = 7/4 = 1.75
+    Result is a float from 0 (no common subsequence) to 1 (identical).
     """
-    return edit_distance(s1, s2) / ((len(s1) + len(s2)) / 2)
+    lcs = longest_common_subsequence(s1, s2)
+    longer = max(len(s1), len(s2))
+    return (lcs / longer) ** 2

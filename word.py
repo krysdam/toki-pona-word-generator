@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 from constants import CACHINESS
-from utils import edit_distance, edit_distance_adjusted
+from utils import edit_distance
 from wordform import Wordform
 
 class Word():
@@ -19,6 +19,8 @@ class Word():
           'sitelen' (which is arbitrary)
         For an English speaker, 'kalensi' takes almost no effort to learn,
         while 'sitelen' takes full effort (all 7 letters must be memorized).
+
+        Starting with the same exact sound is worth one bonus point.
         """
         cost = 0
         cost += edit_distance(self.source, wordform.spelling())
